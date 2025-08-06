@@ -1,0 +1,79 @@
+CSE 111 Proposal for a Student Chosen Program
+(This is a proposal. All proposals are written with our best knowledge at the beginning of a project. As we progress from the beginning to the end of a project, we gain more knowledge, and we change some of our proposed ideas. This is part of completing any project and is fine. However, we still must write a proposal so that our teachers or supervisors know what we intend to do. Please answer each of the following questions to the best of your knowledge.)
+
+1. What is the title of your program?
+
+The title of my program will be "Batch File Renamer and Organizer".
+
+2. What real-world problem will your program address or help to solve?
+
+This program will solve the problem of digital clutter and inconsistent naming in large collections of files. Often, folders like "Downloads," "Camera Photos," or "Project Documents" become filled with files that have generic and uninformative names (e.g., IMG_2834.JPG, Document1_final_rev2.docx, audio_04.mp3).
+
+This makes it difficult to find specific files, understand their content without opening them, and maintain a logical structure. My program will allow the user to select a folder and apply a consistent naming pattern to all files (or files of a specific type), renaming them in a batch process. This will save a huge amount of time compared to manual renaming and dramatically improve the organization and searchability of the files.
+
+3. What will you learn from developing this program?
+
+By developing this program, I expect to learn:
+
+File System Manipulation: How to use Python's os and pathlib modules to list directories, identify files, extract names and extensions, and safely perform rename and move operations.
+
+Defensive Programming: Since the program permanently modifies files, I will learn the importance of implementing safeguards, such as confirming actions with the user, running on file copies, and handling unexpected errors (e.g., permission denied, file not found).
+
+Modular Function Design: How to break a complex problem into smaller, reusable, single-responsibility functions. For example, one function to get the list of files, another to generate the new names, and a third to perform the renaming.
+
+Automated Testing with pytest: How to write effective tests for functions that interact with the file system. This will include learning how to create "fixtures" (temporary test environments with fake files and folders) to ensure my tests do not affect real files and can be run consistently.
+
+Advanced String Manipulation: How to programmatically build new filenames, adding prefixes, zero-padded numerical counters (e.g., 001, 002), and preserving the original file extension.
+
+4. What Python modules will your program use?
+
+My program will use the following modules:
+
+pathlib: For a modern, object-oriented approach to handling file system paths and directories. It is safer and more readable than the os.path module.
+
+os: For direct interactions with the operating system, such as the actual file renaming operation (os.rename) or checking permissions.
+
+shutil: Potentially, for more complex file operations like moving files to a new, organized folder (shutil.move) or creating a backup of the directory before starting operations.
+
+pytest: For writing and running the automated tests for my functions.
+
+5. List the names of functions you will need?
+
+I plan to structure my program with the following main functions:
+
+main(): The main function that will orchestrate the entire process. It will be responsible for getting user input (folder path, renaming pattern) and calling the other functions in the correct order.
+
+get_file_paths(directory, extensions): Will receive a directory path and a list of extensions (e.g., ['.jpg', '.png']) as parameters. It will return a list of Path objects representing all files that match those extensions. This function will not have input or print.
+
+generate_new_name(original_path, prefix, start_number, index): Will receive the original path of a file, a user-defined prefix, a starting number, and an index. It will return a string with the new filename, correctly formatted (e.g., Vacation_2025_001.jpg). This will be a "pure" and easily testable function.
+
+build_rename_map(file_list, prefix, start_number): Will use get_file_paths and generate_new_name to build a dictionary mapping each old file path to its new proposed path (e.g., { 'C:/.../IMG_1.jpg': 'C:/.../Trip_001.jpg', ... }).
+
+execute_rename(rename_map, is_test_run): Will receive the rename map. Before renaming, it will display a preview of the changes to the user. If the user confirms (and is_test_run is False), it will execute the renaming. It will return a count of successfully renamed files.
+
+6. List the names of the test functions you will write.
+
+As required, I will write tests for at least two functions. The ideal candidates are those that have no side effects (they don't modify the file system directly) and return a value.
+
+test_generate_new_name(): This function is perfect for testing. I will check several cases:
+
+If the prefix is applied correctly.
+
+If the numerical counter is incremented and formatted with leading zeros (padding).
+
+If the original file extension is preserved in the new name.
+
+What happens if the prefix is empty.
+
+test_get_file_paths(): This test will require using a pytest fixture (like tmp_path) to create a temporary directory and some test files. I will check:
+
+If the function returns an empty list for an empty directory.
+
+If the function correctly finds all files with a specific extension (e.g., .txt).
+
+If the function ignores files with extensions that are not in the filter list.
+
+If the function can handle a filter with multiple extensions (e.g., ['.jpg', '.gif']).
+
+
+Fontes
