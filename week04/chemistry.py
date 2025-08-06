@@ -1,10 +1,71 @@
-from formula import parse_formula
+import re
 
 # Constantes de índice para tornar o código mais legível, conforme a sugestão.
 # Para a lista de valores no dicionário da tabela periódica (ex: ["Actinium", 227])
 NAME_INDEX = 0
 ATOMIC_MASS_INDEX = 1
 
+class FormulaError(ValueError):
+    """Exceção personalizada para fórmulas químicas inválidas."""
+    pass
+
+def parse_formula(formula, periodic_table_dict):
+    if not isinstance(formula, str) or not formula:
+        raise FormulaError("Fórmula inválida: a entrada deve ser uma string não vazia.")
+
+    # Um conjunto de símbolos de elementos válidos para consulta rápida.
+    known_symbols = set(periodic_table_dict.keys())
+
+    # Esta regex tokeniza a fórmula em uma lista de tuplas.
+    # Cada tupla contém um símbolo/parêntese e sua quantidade subsequente.
+    # Exemplo: "Mg(OH)2" -> [('Mg', ''), ('(', ''), ('O', ''), ('H', ''), (')', '2')]
+    tokens = re.findall(r"([A-Z][a-z]*|\(|\))(\d*)", formula)
+    
+    if not tokens:
+        raise FormulaError("Formato de fórmula química inválido.")
+
+    # Uma pilha para gerenciar grupos aninhados dentro de parênteses. Cada item na
+    # pilha é um dicionário que representa os elementos nesse escopo.
+    stack = [{}]
+
+    for symbol, count_str in tokens:
+        # A quantidade padrão é 1 se nenhum número seguir o símbolo.
+        quantity = int(count_str) if count_str else 1
+
+        if symbol == "(":
+            # Inicia um novo dicionário na pilha para o novo grupo.
+            stack.append({})
+        elif symbol in known_symbols:
+            # Adiciona o elemento e sua quantidade ao dicionário do grupo atual.
+            current_group = stack[-1]
+            current_group[symbol] = current_group.get(symbol, 0) + quantity
+        elif symbol == ")":
+            if len(stack) < 2:
+                raise FormulaError("Parênteses não correspondentes na fórmula.")
+            
+            # Remove o grupo concluído da pilha.
+            top_group = stack.pop()
+            
+            # Obtém o dicionário do grupo pai.
+            parent_group = stack[-1]
+
+            # Multiplica as quantidades no grupo removido pela quantidade
+            # que segue o parêntese e, em seguida, mescla-as no grupo pai.
+            for element, count in top_group.items():
+                parent_group[element] = parent_group.get(element, 0) + count * quantity
+        else:
+            raise FormulaError(f"Símbolo inválido: {symbol}")
+
+    if len(stack) > 1:
+        raise FormulaError("Parênteses não correspondentes na fórmula.")
+
+    # As contagens finais estão no último dicionário restante na pilha.
+    final_counts = stack[0]
+
+    # Converte o dicionário para o formato de lista de listas necessário e o ordena.
+    symbol_quantity_list = list(map(list, sorted(final_counts.items())))
+
+    return symbol_quantity_list
 
 def make_periodic_table():
     periodic_table_dict = {
@@ -43,19 +104,22 @@ def make_periodic_table():
     }
     return periodic_table_dict
 
-
 def compute_molar_mass(symbol_quantity_list, periodic_table_dict):
     """
     Calcula e retorna a massa molar total de uma lista de elementos e suas quantidades.
     """
     total_molar_mass = 0.0
     for symbol, quantity in symbol_quantity_list:
-        element_data = periodic_table_dict[symbol]
-        # Utiliza a variável de índice para maior clareza.
-        atomic_mass = element_data[ATOMIC_MASS_INDEX]
-        total_molar_mass += atomic_mass * quantity
+        if symbol in periodic_table_dict:
+            element_data = periodic_table_dict[symbol]
+            # Utiliza a variável de índice para maior clareza.
+            atomic_mass = element_data[ATOMIC_MASS_INDEX]
+            total_molar_mass += atomic_mass * quantity
+        else:
+            # Este erro será pego pela função parse_formula, mas é uma boa prática
+            # ter uma verificação aqui também.
+            raise FormulaError(f"Elemento químico desconhecido na fórmula: {symbol}")
     return total_molar_mass
-
 
 def main():
     """
@@ -66,7 +130,9 @@ def main():
         sample_mass = float(input("Digite a massa da amostra em gramas: "))
 
         periodic_table = make_periodic_table()
-        symbol_quantity_list = parse_formula(chemical_formula)
+        # Chama a função parse_formula para obter a lista de símbolos e quantidades
+        symbol_quantity_list = parse_formula(chemical_formula, periodic_table)
+        
         molar_mass = compute_molar_mass(symbol_quantity_list, periodic_table)
         number_of_moles = sample_mass / molar_mass
 
@@ -74,18 +140,18 @@ def main():
         print(f"Massa Molar de {chemical_formula}: {molar_mass:.5f} g/mol")
         print(f"Número de Moles na amostra: {number_of_moles:.5f} moles")
         print(f"{'-'*30}")
-
-    except FileNotFoundError:
-        print("\n[ERRO] O arquivo 'elements.csv' não foi encontrado.")
-        print("Por favor, certifique-se de que ele está na mesma pasta que o programa.")
+    
+    except FormulaError as e:
+        print(f"\n[ERRO NA FÓRMULA] {e}")
+        print("Por favor, verifique a fórmula digitada.")
     except KeyError as e:
+        # Este erro é menos provável agora, mas mantido por segurança.
         print(f"\n[ERRO] Elemento químico desconhecido na fórmula: {e}")
         print("Por favor, verifique a fórmula digitada.")
     except ValueError:
         print("\n[ERRO] Valor inválido. A massa da amostra deve ser um número.")
     except Exception as e:
-        print(f"Ocorreu um erro inesperado: {e}")
-
+        print(f"\nOcorreu um erro inesperado: {e}")
 
 if __name__ == "__main__":
     main()
