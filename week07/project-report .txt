@@ -1,0 +1,54 @@
+
+Student: Arthur De Menezes Rocha 
+Project: Master Batch File Renamer and Organizer
+
+This report details the time and work invested in developing a Python application to rename and organize files in a user's file system. The project evolved from a simple batch renamer to a more robust tool that also categorizes files into type-specific subdirectories.
+
+1. In the table below, list the dates, amount of time spent, and
+description of the work that you did on your project.
+
+      Time Spent
+Date      (hours)   Description of Work
+----------  ----------  ----------------------------------------------------------------------
+2025-08-04      2.0     Researched initial project scope. Explored Python libraries for
+                        file system interaction, comparing `os.path` with the modern
+                        `pathlib`. Decided to use `pathlib` for its object-oriented
+                        approach. Sketched a basic program flow diagram on paper.
+
+2025-08-05      2.5     Wrote the initial core functions: `find_files_in_directory` to
+                        list files and `execute_rename_operation` with basic `os.rename`.
+                        Implemented the main user interface loop in the `main` function
+                        to get user input for the target directory.
+
+2025-08-06      2.5     Developed the batch renaming logic in `build_batch_rename_map`.
+                        Researched how to implement zero-padding for sequential numbers
+                        and learned to use `math.log10` to dynamically calculate the
+                        necessary padding based on the number of files. Debugged an
+                        edge case where the log function would fail with 1 file.
+
+2025-08-07      1.5     Improved the user interaction flow. Added logic to search for
+                        folders recursively from the home directory if a full path isn't
+                        provided. Implemented the choice menu for when multiple folders
+                        with the same name are found. Added better error handling for
+                        user input.
+
+2025-08-08      2.0     Researched automated testing for file operations. Watched videos
+                        on the `pytest` framework and learned about the `tmp_path` fixture,
+                        which is essential for testing file system changes without
+                        affecting real files. Wrote the first two test functions for
+                        `find_files_in_directory` and `build_batch_rename_map`.
+
+2025-08-11      2.5     Discussed project expansion with a tutor. Decided to add the
+                        "organizer" feature. Designed the `organize_files_by_type`
+                        function, creating a dictionary to map extensions to folder
+                        names. Researched `shutil.move` as a more robust alternative
+                        to `os.rename` for moving files between directories. Wrote and
+                        integrated the new function into the main workflow.
+
+2025-08-13      1.5     Wrote a new test function `test_organize_files_by_type` to
+                        validate the new organizer logic. Performed final code cleanup,
+                        added detailed docstrings to all functions, and verified all
+                        parts of the project were working together seamlessly. Prepared
+                        final files for submission and wrote this report.
+----------  ----------  ----------------------------------------------------------------------
+TOTAL       14.5      Total hours spent on the project.
