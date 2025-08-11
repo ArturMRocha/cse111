@@ -39,13 +39,10 @@ def execute_rename_operation(rename_map: dict[Path, Path]):
             print(f"  ❌ ERROR renaming {old.name}: {e}")
     print(f"\n✨ Operation complete! {success_count} files were successfully renamed.")
 
-
-# --- Main Application Logic with Improved User Interface ---
-
 def main():
     """Main function to drive the user interaction and renaming process."""
     print("="*60)
-    print("      Master Batch File Renamer and Organizer") # <-- ALTERAÇÃO AQUI: v4.0 removido
+    print("      Master Batch File Renamer and Organizer")
     print("="*60)
     
     # Step 1: Find the target folder
